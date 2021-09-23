@@ -1,8 +1,7 @@
 # See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.194.0/containers/dotnet/.devcontainer/base.Dockerfile
 
 # [Choice] .NET version: 5.0, 3.1, 2.1
-ARG VARIANT="5.0"
-FROM mcr.microsoft.com/vscode/devcontainers/dotnet:0-${VARIANT}
+FROM mcr.microsoft.com/vscode/devcontainers/dotnet
 
 # [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
 ARG NODE_VERSION="none"
@@ -10,10 +9,6 @@ RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/
 
 # Copy the setup scripts
 COPY library-scripts/*.sh library-scripts/*.env /tmp/library-scripts/
-
-# Install .NET 6 RC1
-RUN echo 'Installing .NET 6'
-RUN bash /tmp/library-scripts/dotnet-install.sh --channel 6.0
 
 # [Option] Install Azure CLI
 ARG INSTALL_AZURE_CLI="false"
