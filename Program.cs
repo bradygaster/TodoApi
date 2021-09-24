@@ -37,7 +37,6 @@ app.Services.GetRequiredService<IMemoryCache>()
 
 // Get all todos
 app.MapGet("/todos", (IMemoryCache memoryCache) => Results.Ok(memoryCache.Get<List<Todo>>(TodosCacheKey)))
-   .WithTags("TodoApi")
    .WithName("GetAllTodos")
    .Produces<List<Todo>>();
 
@@ -56,7 +55,6 @@ app.MapPost("/todos", (IMemoryCache memoryCache, Todo todo) =>
             return Results.Created($"/todo/{todo.Id}", todo);
         }
     })
-    .WithTags("TodoApi")
     .WithName("CreateTodo")
     .Produces(StatusCodes.Status409Conflict)
     .Produces<Todo>(StatusCodes.Status201Created);
@@ -75,7 +73,6 @@ app.MapPut("/todos", (IMemoryCache memoryCache, int id, Todo todo) =>
         memoryCache.Set<List<Todo>>(TodosCacheKey, todos);
         return Results.Accepted($"/todo/{id}", todo);
     })
-    .WithTags("TodoApi")
     .WithName("UpdateTodo")
     .Produces(StatusCodes.Status404NotFound)
     .Produces<Todo>(StatusCodes.Status202Accepted);
@@ -90,7 +87,6 @@ app.MapGet("/todo/{id}", (IMemoryCache memoryCache, int id) =>
         }
         return Results.Ok(todos.First(x => x.Id == id));
     })
-    .WithTags("TodoApi")
     .WithName("GetTodo")
     .Produces(StatusCodes.Status404NotFound)
     .Produces<Todo>(StatusCodes.Status200OK);
