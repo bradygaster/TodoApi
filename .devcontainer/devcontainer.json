@@ -29,8 +29,8 @@
 	},
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"onCreateCommand": "bash -i ${containerWorkspaceFolder}/.devcontainer/library-scripts/dotnet-install.sh --channel 6.0",
+	"onCreateCommand": "${containerWorkspaceFolder}/.devcontainer/library-scripts/dotnet-install.sh --channel 6.0 -quality daily -installdir ${containerWorkspaceFolder}/.dotnet",
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "dotnet --info"
+	"postCreateCommand": "dotnet dev-certs https --trust",
 }
