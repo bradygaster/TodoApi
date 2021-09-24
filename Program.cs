@@ -1,6 +1,6 @@
-// OpenAPI description constants
 using Microsoft.Extensions.Caching.Memory;
 
+// OpenAPI description constants
 const string OpenApiDocName = "TodoApi";
 const string OpenApiDocVersion = "2021-09-01";
 const string TodosCacheKey = "todos";
@@ -36,7 +36,7 @@ app.Services.GetRequiredService<IMemoryCache>()
         }));
 
 // Get all todos
-app.MapGet("/todos", (IMemoryCache memoryCache) => memoryCache.Get<List<Todo>>(TodosCacheKey))
+app.MapGet("/todos", (IMemoryCache memoryCache) => Results.Ok(memoryCache.Get<List<Todo>>(TodosCacheKey)))
    .WithTags("TodoApi")
    .WithName("GetAllTodos")
    .Produces<List<Todo>>();
@@ -61,8 +61,39 @@ app.MapPost("/todos", (IMemoryCache memoryCache, Todo todo) =>
     .Produces(StatusCodes.Status409Conflict)
     .Produces<Todo>(StatusCodes.Status201Created);
 
+// Update an existing todo
+app.MapPut("/todos", (IMemoryCache memoryCache, int id, Todo todo) =>
+    {
+        var todos = memoryCache.Get<List<Todo>>(TodosCacheKey);
+        if (!todos.Any(t => t.Id == todo.Id))
+        {
+            return Results.NotFound($"Todo with id {todo.Id} not found.");
+        }
+
+        todos.RemoveAll(x => x.Id == id);
+        todos.Add(todo);
+        memoryCache.Set<List<Todo>>(TodosCacheKey, todos);
+        return Results.Accepted($"/todo/{id}", todo);
+    })
+    .WithTags("TodoApi")
+    .WithName("UpdateTodo")
+    .Produces(StatusCodes.Status404NotFound)
+    .Produces<Todo>(StatusCodes.Status202Accepted);
+
+// Get a specific todo
+app.MapGet("/todo/{id}", (IMemoryCache memoryCache, int id) =>
+    {
+        var todos = memoryCache.Get<List<Todo>>(TodosCacheKey);
+        if (!todos.Any(t => t.Id == id))
+        {
+            return Results.NotFound($"Todo with id {id} not found.");
+        }
+        return Results.Ok(todos.First(x => x.Id == id));
+    })
+    .WithTags("TodoApi")
+    .WithName("GetTodo")
+    .Produces(StatusCodes.Status404NotFound)
+    .Produces<Todo>(StatusCodes.Status200OK);
+
 // Start the host and thus, the app
 app.Run();
-
-// The Todo model
-public record Todo(int Id, string Title, bool IsComplete = false);
